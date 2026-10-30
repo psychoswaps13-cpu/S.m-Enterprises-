@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machinery Parts – Stock Management</title>
+<style>
+:root{--navy:#0b1a38;--navy2:#13264d;--blue:#1d4ed8;--green:#16a34a;--red:#dc2626;--amber:#f59e0b;--purple:#7c3aed;--bg:#f4f7fb;--line:#e5eaf2;--text:#0f1c3a;--muted:#5b6b88}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+button,input,select{font:inherit}
+svg{flex:none;display:block}
+.hide{display:none!important}
+#login{min-height:100vh;display:grid;place-items:center;padding:16px;background:var(--navy)}
+.lbox{background:#fff;border-radius:14px;padding:28px;width:100%;max-width:380px}
+.lbox h1{margin:0 0 4px;font-size:22px}.lbox p{margin:0 0 18px;color:var(--muted)}
+label{display:block;font-weight:600;margin:12px 0 4px;font-size:13px}
+input,select{width:100%;padding:10px 12px;border:1px solid #cfd8e6;border-radius:8px;background:#fff}
+input:focus,select:focus{outline:2px solid #93b4ff;border-color:var(--blue)}
+input[readonly]{background:#f1f5fb;color:var(--muted)}
+.btn{border:0;border-radius:8px;padding:10px 16px;font-weight:600;cursor:pointer;color:#fff;background:var(--blue);display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn.green{background:var(--green)}.btn.red{background:var(--red)}
+.btn.ghost{background:#fff;color:var(--blue);border:1px solid var(--blue)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.err{color:var(--red);margin-top:10px;min-height:18px;font-size:13px}
+.hint{color:var(--muted);font-size:12px;margin-top:4px;min-height:16px}
+#app{display:flex;min-height:100vh}
+aside{width:236px;background:var(--navy);color:#fff;display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0;z-index:20;transition:transform .2s}
+aside .brand{padding:18px 16px;border-bottom:1px solid #ffffff18;display:flex;gap:12px;align-items:center}
+aside .brand .logo{width:38px;height:38px;border-radius:50%;background:var(--blue);display:grid;place-items:center}
+aside .brand b{font-size:16px;display:block}aside .brand small{color:#9fb0d0}
+aside nav{padding:10px;flex:1}
+aside nav a{display:flex;gap:12px;align-items:center;padding:11px 12px;border-radius:8px;color:#e6ecf8;cursor:pointer;margin-bottom:4px;font-weight:600}
+aside nav a:hover{background:var(--navy2)}
+aside nav a.in svg{color:#4ade80}aside nav a.out svg{color:#f87171}
+aside nav a.on{background:var(--blue)}aside nav a.on.out{background:var(--red)}aside nav a.on svg{color:#fff}
+aside .foot{padding:14px 16px;color:#9fb0d0;font-size:12px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#22c55e;margin-right:6px}
+.wrap{margin-left:236px;flex:1;min-width:0}
+header{height:56px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:10}
+#burger{display:none;background:none;border:0;cursor:pointer;color:var(--text)}
+.me{display:flex;align-items:center;gap:8px;font-weight:600}
+.av{width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center}
+main{padding:18px}
+h2{margin:0}.sub{color:var(--muted);margin:2px 0 16px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:16px 0}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px;background:#fff;display:flex;gap:14px;align-items:center}
+.card .ic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;color:#fff}
+.card small{color:var(--muted);display:block}.card b{font-size:26px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--line)}
+.tabs a{padding:14px 22px;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;color:var(--muted);display:flex;gap:8px;align-items:center}
+.tabs a.in.on{color:var(--green);border-color:var(--green)}.tabs a.out.on{color:var(--red);border-color:var(--red)}
+.tabs a.in svg{color:var(--green)}.tabs a.out svg{color:var(--red)}
+.ph{padding:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.ph h3{margin:0}.ph .sub{margin:2px 0 0}.tools{display:flex;gap:8px;flex-wrap:wrap}.tools input{width:260px;max-width:100%}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th{background:#f1f5fb;text-align:left;padding:11px 12px;font-size:13px}
+td{padding:11px 12px;border-top:1px solid var(--line)}
+.badge{padding:3px 9px;border-radius:99px;font-size:12px;font-weight:700;display:inline-block}
+.b-ok,.b-in{background:#dcfce7;color:#166534}.b-low{background:#fef3c7;color:#92400e}.b-out{background:#fee2e2;color:#991b1b}
+.pg{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-top:1px solid var(--line);flex-wrap:wrap;gap:8px;color:var(--muted)}
+.pg div{display:flex;gap:6px}.pg button{min-width:34px;height:34px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer}
+.pg button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.modal{position:fixed;inset:0;background:#0008;display:grid;place-items:center;z-index:50;padding:14px}
+.mbox{background:#fff;border-radius:12px;padding:22px;width:100%;max-width:420px;max-height:92vh;overflow:auto}
+.mbox h3{margin:0 0 6px;display:flex;gap:8px;align-items:center}.row{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
+.dline{margin-top:14px;padding:10px 12px;background:#f1f5fb;border-radius:8px;color:var(--muted)}
+.srow{display:grid;grid-template-columns:1fr 84px 38px;gap:6px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.srow .d{grid-column:1/-1}
+.filters{display:flex;gap:10px;flex-wrap:wrap;padding:0 16px 16px}.filters div{min-width:140px;flex:1}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 18px;border-radius:8px;z-index:60}
+@media(max-width:860px){
+ aside{transform:translateX(-100%)}aside.open{transform:none}
+ .wrap{margin-left:0}#burger{display:block}
+}
+</style>
+</head>
+<body>
+
+<div id="login">
+ <div class="lbox">
+  <h1>Machinery Parts</h1><p>Stock Management – please sign in</p>
+  <label>Username</label><input id="em" autocomplete="username" autocapitalize="none">
+  <label>Password</label><input id="pw" type="password" autocomplete="current-password">
+  <div class="err" id="lerr"></div>
+  <button class="btn" style="width:100%;margin-top:6px" onclick="doLogin()">Sign In</button>
+ </div>
+</div>
+
+<div id="app" class="hide">
+ <aside id="side">
+  <div class="brand"><div class="logo" id="logo"></div><div><b>Machinery Parts</b><small>Stock Management</small></div></div>
+  <nav id="nav"></nav>
+  <div class="foot"><span class="dot"></span>System Online<br>Version 1.1.0</div>
+ </aside>
+ <div class="wrap">
+  <header>
+   <button id="burger" onclick="toggleSide()"></button><span></span>
+   <div class="me"><span class="av" id="av"></span><span id="mename"></span>
+    <button class="btn ghost sm" onclick="logout()">Sign Out</button></div>
+  </header>
+  <main id="main"></main>
+ </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = "https://aoaexttdksvunejyxaty.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvYWV4dHRka3N2dW5lanl4YXR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwMjA5MjksImV4cCI6MjEwODU5NjkyOX0.MkOhvGrQ4b0Od5eiRTxvRTq37lf5MydUUe2V4z4XWlk";
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate = d => { if(!d) return ''; const [y,m,dd] = String(d).slice(0,10).split('-'); return `${dd}-${m}-${y}`; };
+const today = () => new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Kolkata'});
+
+/* Icons */
+const I = {
+ home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>',
+ box:'<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5"/><path d="M12 13v8"/>',
+ in:'<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 17v3h16v-3"/>',
+ out:'<path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M4 17v3h16v-3"/>',
+ chart:'<path d="M5 21V10"/><path d="M12 21V4"/><path d="M19 21v-8"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17.5 14.2c2.5.3 4 2.2 4 5"/>',
+ set:'<path d="M4 6h10"/><path d="M18 6h2"/><circle cx="16" cy="6" r="2"/><path d="M4 12h2"/><path d="M10 12h10"/><circle cx="8" cy="12" r="2"/><path d="M4 18h10"/><path d="M18 18h2"/><circle cx="16" cy="18" r="2"/>',
+ alert:'<path d="M12 3 2 20h20z"/><path d="M12 10v4"/><path d="M12 17.5v.01"/>',
+ file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6"/><path d="M9 16h6"/>',
+ layers:'<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+ plus:'<path d="M12 5v14"/><path d="M5 12h14"/>',
+ cam:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+ menu:'<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/>',
+ cog:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/><path d="m4.9 4.9 2.1 2.1"/><path d="m17 17 2.1 2.1"/><path d="m19.1 4.9-2.1 2.1"/><path d="m7 17-2.1 2.1"/>'
+};
+const ic = (n,s=20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${I[n]}</svg>`;
+
+let me=null, prods=[], tx=[], users=[], view='dashboard', page=1, q='';
+const isAdmin = () => me && me.role === 'admin';
+const PER = 10;
+
+function toast(m){ const t=document.createElement('div'); t.className='toast'; t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),2800); }
+function toggleSide(){ $('#side').classList.toggle('open'); }
+
+const toEmail = u => u.trim().toLowerCase().split('@')[0].replace(/\s+/g,'') + '@stockapp.com';
+
+async function doLogin(){
+  $('#lerr').textContent='';
+  const {error} = await db.auth.signInWithPassword({email:toEmail($('#em').value), password:$('#pw').value});
+  if(error){ $('#lerr').textContent='Incorrect username or password.'; return; }
+  start();
+}
+async function logout(){ await db.auth.signOut(); location.reload(); }
+
+async function start(){
+  const {data:{session}} = await db.auth.getSession();
+  if(!session){ $('#login').classList.remove('hide'); $('#app').classList.add('hide'); return; }
+  const {data:p} = await db.from('profiles').select('*').eq('id',session.user.id).single();
+  if(!p || !p.active){ await db.auth.signOut(); $('#lerr').textContent='Your account is disabled. Please contact the admin.'; $('#login').classList.remove('hide'); return; }
+  me = p;
+  $('#login').classList.add('hide'); $('#app').classList.remove('hide');
+  $('#logo').innerHTML = ic('cog',22); $('#burger').innerHTML = ic('menu',24);
+  $('#mename').textContent = p.full_name || 'User';
+  $('#av').textContent = (p.full_name||'U')[0].toUpperCase();
+  await loadAll(); go('dashboard');
+}
+
+async function loadAll(){
+  const [a,b] = await Promise.all([
+    db.from('product_stock').select('*').order('part_number'),
+    db.from('transactions').select('*, products(part_number,description)').order('created_at',{ascending:false}).limit(5000)
+  ]);
+  prods = a.data || []; tx = b.data || [];
+  if(isAdmin()){ const u = await db.from('profiles').select('*').order('full_name'); users = u.data || []; }
+}
+
+function go(v){ view=v; page=1; q=''; $('#side').classList.remove('open'); renderNav(); render(); window.scrollTo(0,0); }
+
+function renderNav(){
+  const items = [['dashboard','home','Dashboard'],['products','box','Products'],['in','in','Stock In'],['out','out','Stock Out'],['reports','chart','Reports']];
+  if(isAdmin()) items.push(['users','users','Users']);
+  items.push(['settings','set','Settings']);
+  $('#nav').innerHTML = items.map(([id,i,l]) => `<a class="${view===id?'on':''} ${id==='in'||id==='out'?id:''}" onclick="go('${id}')">${ic(i)}${l}</a>`).join('');
+}
+
+function render(){
+  const m = $('#main');
+  if(view==='dashboard') m.innerHTML = vDash();
+  else if(view==='products') m.innerHTML = vProducts();
+  else if(view==='in'||view==='out') m.innerHTML = vTx(view);
+  else if(view==='reports') m.innerHTML = vReports();
+  else if(view==='users') m.innerHTML = vUsers();
+  else m.innerHTML = vSettings();
+}
+
+/* Dashboard */
+function vDash(){
+  const low = prods.filter(p => p.balance <= p.min_stock);
+  const total = prods.reduce((s,p)=>s+p.balance,0);
+  const card = (i,col,l,v) => `<div class="card"><div class="ic" style="background:${col}">${ic(i,24)}</div><div><small>${l}</small><b>${v}</b></div></div>`;
+  return `<div class="top"><div><h2>Welcome Back, ${esc(me.full_name)}!</h2><p class="sub">Here's your stock overview for today.</p></div>
+  <div class="tools"><button class="btn green" onclick="txForm('in')">${ic('in',18)}Stock In</button><button class="btn red" onclick="txForm('out')">${ic('out',18)}Stock Out</button></div></div>
+  <div class="cards">${card('box','var(--blue)','Total Products',prods.length)}${card('layers','var(--green)','Total Stock (Balance)',total)}${card('alert','var(--amber)','Low Stock Items',low.length)}${card('file','var(--purple)','Total Transactions',tx.length)}</div>
+  <div class="panel"><div class="ph"><h3>Low Stock Items</h3></div><div class="tw">${low.length?`<table><tr><th>Part Number</th><th>Description</th><th>Balance</th><th>Min Stock</th></tr>${low.map(p=>`<tr><td>${esc(p.part_number)}</td><td>${esc(p.description)}</td><td><b>${p.balance}</b></td><td>${p.min_stock}</td></tr>`).join('')}</table>`:'<div class="empty">All items are sufficiently stocked.</div>'}</div></div>
+  <div class="panel"><div class="ph"><h3>Recent Transactions</h3></div><div class="tw">${tx.length?`<table><tr><th>Date</th><th>Type</th><th>Part Number</th><th>Description</th><th>Quantity</th><th>Checked By</th></tr>${tx.slice(0,8).map(t=>`<tr><td>${fmtDate(t.tx_date)}</td><td><span class="badge b-${t.type}">${t.type==='in'?'Stock In':'Stock Out'}</span></td><td>${esc(t.products?.part_number)}</td><td>${esc(t.products?.description)}</td><td>${t.qty}</td><td>${esc(t.done_by_name)}</td></tr>`).join('')}</table>`:'<div class="empty">No entries yet.</div>'}</div></div>`;
+}
+
+/* Pagination */
+function pager(n){
+  const pages = Math.max(1, Math.ceil(n/PER)); if(page>pages) page=pages;
+  const from = n? (page-1)*PER+1 : 0, to = Math.min(n, page*PER);
+  let btns = '';
+  const st = Math.max(1, Math.min(page-2, pages-4)), en = Math.min(pages, st+4);
+  for(let i=st;i<=en;i++) btns += `<button class="${i===page?'on':''}" onclick="setPage(${i})">${i}</button>`;
+  return `<div class="pg"><span>Showing ${from} to ${to} of ${n} entries</span><div><button onclick="setPage(${page-1})" ${page<=1?'disabled':''}>&lsaquo;</button>${btns}<button onclick="setPage(${page+1})" ${page>=pages?'disabled':''}>&rsaquo;</button></div></div>`;
+}
+function setPage(p){ page=p; render(); }
+function setQ(v){ q=v.toLowerCase(); page=1; render(); const i=$('#sq'); if(i){ i.focus(); i.setSelectionRange(v.length,v.length); } }
+
+/* Stock In / Out */
+function vTx(type){
+  let rows = tx.filter(t => t.type===type);
+  if(q) rows = rows.filter(t => [t.products?.part_number,t.products?.description,t.done_by_name].join(' ').toLowerCase().includes(q));
+  const list = rows.slice((page-1)*PER, page*PER);
+  const col = type==='in'?'green':'red', lab = type==='in'?'Stock In':'Stock Out';
+  return `<div class="panel"><div class="tabs"><a class="in ${type==='in'?'on':''}" onclick="go('in')">${ic('in')}Stock In</a><a class="out ${type==='out'?'on':''}" onclick="go('out')">${ic('out')}Stock Out</a></div>
+  <div class="ph"><div><h3>${lab} Details</h3><div class="sub">View all ${lab.toLowerCase()} entries</div></div>
+  <div class="tools"><input id="sq" placeholder="Search part number or description..." value="${esc(q)}" oninput="setQ(this.value)"><button class="btn ${col}" onclick="txForm('${type}')">${ic('plus',16)}${lab}</button><button class="btn ghost" onclick="scanForm('${type}')">${ic('cam',16)}Scan Bill</button><button class="btn ghost" onclick="exportTx('${type}')">Export Excel</button></div></div>
+  <div class="tw"><table><tr><th>Sr. No.</th><th>Date</th><th>Part Number</th><th>Description</th><th>Quantity</th><th>Checked By</th>${isAdmin()?'<th></th>':''}</tr>
+  ${list.map((t,i)=>`<tr><td>${(page-1)*PER+i+1}</td><td>${fmtDate(t.tx_date)}</td><td>${esc(t.products?.part_number)}</td><td>${esc(t.products?.description)}</td><td><b>${t.qty}</b></td><td>${esc(t.done_by_name)}</td>${isAdmin()?`<td><button class="btn red sm" onclick="delTx(${t.id})">Delete</button></td>`:''}</tr>`).join('')}</table>
+  ${rows.length?'':'<div class="empty">No entries found.</div>'}</div>${pager(rows.length)}</div>`;
+}
+
+let autoFilled=false;
+function txForm(type){
+  const lab = type==='in'?'Stock In':'Stock Out';
+  modal(`<h3>${ic(type,20)}${lab}</h3>
+   <datalist id="pl">${prods.map(p=>`<option value="${esc(p.part_number)}">`).join('')}</datalist>
+   <label>Part Number</label><input id="f_p" list="pl" autocomplete="off" oninput="lookupPart()">
+   <div class="hint" id="f_h"></div>
+   <label>Quantity</label><input id="f_q" type="number" min="1" inputmode="numeric">
+   <label>Description</label><input id="f_ds">
+   <label>Checked By</label><input id="f_c" value="${esc(me.full_name)}">
+   <div class="dline">Date: <b>${fmtDate(today())}</b> (today)</div>
+   <div class="err" id="ferr"></div>
+   <div class="row"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn ${type==='in'?'green':'red'}" onclick="saveTx('${type}')">Save</button></div>`);
+  autoFilled=false;
+}
+function lookupPart(){
+  const v = $('#f_p').value.trim().toLowerCase(), d = $('#f_ds');
+  const p = prods.find(x => x.part_number.toLowerCase()===v);
+  if(p){
+    if(p.description){ d.value=p.description; d.readOnly=true; autoFilled=true; } else { d.readOnly=false; }
+    $('#f_h').textContent = `Current stock: ${p.balance}`;
+  } else {
+    if(autoFilled){ d.value=''; autoFilled=false; }
+    d.readOnly=false; $('#f_h').textContent = v ? 'New part number' : '';
+  }
+}
+async function saveTx(type){
+  const qty = parseInt($('#f_q').value,10);
+  if(!$('#f_p').value.trim()){ $('#ferr').textContent='Please enter the part number.'; return; }
+  if(!qty || qty<1){ $('#ferr').textContent='Please enter a valid quantity.'; return; }
+  const {error} = await db.rpc('add_entry',{p_type:type, p_part:$('#f_p').value.trim(), p_qty:qty, p_desc:$('#f_ds').value.trim(), p_checked:$('#f_c').value.trim()});
+  if(error){ $('#ferr').textContent = error.message; return; }
+  closeModal(); toast('Entry saved'); await loadAll(); render();
+}
+async function delTx(id){
+  if(!confirm('Delete this entry?')) return;
+  const {error} = await db.from('transactions').delete().eq('id',id);
+  if(error){ toast(error.message); return; }
+  await loadAll(); render();
+}
+
+/* Scan Bill (OCR runs inside the browser, no key or server needed) */
+/*PARSE_START*/
+function parseBill(text){
+  const out=[];
+  for(const raw of text.split('\n')){
+    const line = raw.replace(/[‐‑–—−]/g,'-').replace(/[|]/g,' ').replace(/\s+/g,' ').trim();
+    const m = line.match(/(?:^|\s)((?=[A-Z0-9-]*\d)[A-Z0-9]{1,5}-[A-Z0-9]{2,8})(?=\s|$)/i);
+    if(!m) continue;
+    const rest = line.slice(m.index + m[0].length).trim().split(' ').filter(Boolean);
+    const ri = rest.findIndex(t => /^[\d,]+\.\d{2}$/.test(t));
+    let qty = 0, end = rest.length;
+    if(ri>0 && /^\d{1,5}$/.test(rest[ri-1])){ qty = +rest[ri-1]; end = ri-1; }
+    if(end>0 && /^\d{6,8}$/.test(rest[end-1])) end--;
+    if(!qty && !/^\d{1,3}\s/.test(line)) continue;
+    const desc = rest.slice(0,end).join(' ').replace(/[^A-Za-z0-9 .,\/&()'-]/g,'').trim();
+    out.push({part:m[1].toUpperCase(), desc, qty: qty||''});
+  }
+  return out;
+}
+/*PARSE_END*/
+let sc={type:'in',rows:[]}, tessP=null;
+const loadTess = () => tessP || (tessP = new Promise((ok,no)=>{ const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js'; s.onload=ok; s.onerror=()=>{ tessP=null; no(new Error('Could not load the reader. Please check your internet connection.')); }; document.head.appendChild(s); }));
+function prepImage(file){
+  return new Promise((res,rej)=>{
+    const url=URL.createObjectURL(file), img=new Image();
+    img.onload=()=>{
+      const k=Math.max(0.5,Math.min(2.5,2000/img.width)), c=document.createElement('canvas');
+      c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+      const x=c.getContext('2d'); x.drawImage(img,0,0,c.width,c.height);
+      const d=x.getImageData(0,0,c.width,c.height), p=d.data;
+      for(let i=0;i<p.length;i+=4){ let g=0.3*p[i]+0.59*p[i+1]+0.11*p[i+2]; g=(g-128)*1.25+128; g=g<0?0:g>255?255:g; p[i]=p[i+1]=p[i+2]=g; }
+      x.putImageData(d,0,0); URL.revokeObjectURL(url); res(c);
+    };
+    img.onerror=()=>rej(new Error('Could not open this photo.'));
+    img.src=url;
+  });
+}
+function withLookup(r){
+  const p = prods.find(x => x.part_number.toLowerCase()===String(r.part).trim().toLowerCase());
+  return (p && p.description) ? {...r, desc:p.description, ro:true} : {...r, ro:false};
+}
+function scanForm(type){
+  sc={type,rows:[]};
+  modal(`<h3>${ic('cam',20)}Scan Bill – ${type==='in'?'Stock In':'Stock Out'}</h3>
+  <p class="sub" style="margin:6px 0 10px">Take a clear photo of the bill. The part numbers and quantities are read automatically. Please check them before saving.</p>
+  <input id="sf" type="file" accept="image/*" onchange="runScan(this.files[0])">
+  <div class="hint" id="sprog"></div>
+  <label>Checked By</label><input id="sby" value="${esc(me.full_name)}">
+  <div id="srows" style="margin-top:14px"></div>
+  <div class="err" id="ferr"></div>
+  <div class="row"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn ${type==='in'?'green':'red'}" id="ssave" onclick="saveScan()" disabled>Save All</button></div>`,520);
+  renderScanRows();
+}
+async function runScan(file){
+  if(!file) return;
+  const pr=$('#sprog'); pr.textContent='Preparing the photo...'; $('#ferr').textContent='';
+  try{
+    await loadTess();
+    const canvas = await prepImage(file);
+    const worker = await Tesseract.createWorker('eng',1,{logger:m=>{ pr.textContent = m.status==='recognizing text' ? `Reading the bill... ${Math.round(m.progress*100)}%` : 'Loading the reader (first time only)...'; }});
+    await worker.setParameters({tessedit_pageseg_mode:'6', preserve_interword_spaces:'1'});
+    const {data} = await worker.recognize(canvas);
+    await worker.terminate();
+    sc.rows = parseBill(data.text).map(withLookup);
+    pr.textContent = sc.rows.length ? `${sc.rows.length} items found. Please check and correct if needed.` : 'No items found. Try a clearer photo, or add rows manually.';
+  }catch(e){ pr.textContent = 'Could not read the photo. ' + (e.message||''); }
+  renderScanRows();
+}
+function renderScanRows(){
+  $('#srows').innerHTML = sc.rows.map((r,i)=>`<div class="srow"><input value="${esc(r.part)}" placeholder="Part Number" onchange="scSet(${i},'part',this.value)"><input type="number" min="1" inputmode="numeric" value="${esc(r.qty)}" placeholder="Qty" oninput="scSet(${i},'qty',this.value,1)"><button class="btn red sm" onclick="scDel(${i})">&times;</button><input class="d" value="${esc(r.desc)}" placeholder="Description" ${r.ro?'readonly':''} oninput="scSet(${i},'desc',this.value,1)"></div>`).join('')
+   + `<button class="btn ghost sm" onclick="scAdd()">${ic('plus',14)}Add row</button>`;
+  $('#ssave').disabled = !sc.rows.length;
+}
+function scSet(i,k,v,quiet){ sc.rows[i][k]=v; if(k==='part') sc.rows[i]=withLookup(sc.rows[i]); if(!quiet) renderScanRows(); }
+function scDel(i){ sc.rows.splice(i,1); renderScanRows(); }
+function scAdd(){ sc.rows.push({part:'',desc:'',qty:'',ro:false}); renderScanRows(); }
+async function saveScan(){
+  const err=$('#ferr'); err.textContent='';
+  const rows = sc.rows.filter(r => String(r.part).trim() || r.qty);
+  for(let i=0;i<rows.length;i++){
+    if(!String(rows[i].part).trim() || !(parseInt(rows[i].qty,10)>0)){ err.textContent=`Row ${i+1}: please enter a part number and a quantity.`; return; }
+  }
+  if(!rows.length){ err.textContent='There is nothing to save.'; return; }
+  const btn=$('#ssave'); btn.disabled=true; btn.textContent='Saving...';
+  const failed=[], msgs=[]; let ok=0;
+  for(const r of rows){
+    const {error} = await db.rpc('add_entry',{p_type:sc.type, p_part:String(r.part).trim(), p_qty:parseInt(r.qty,10), p_desc:String(r.desc||'').trim(), p_checked:$('#sby').value.trim()});
+    if(error){ failed.push(r); msgs.push(`${r.part}: ${error.message}`); } else ok++;
+  }
+  await loadAll(); render();
+  if(!failed.length){ closeModal(); toast(`${ok} entries saved`); return; }
+  sc.rows=failed; renderScanRows(); btn.textContent='Save All';
+  err.innerHTML = `${ok} saved. These could not be saved:<br>` + msgs.map(esc).join('<br>');
+}
+
+/* Products */
+function vProducts(){
+  let rows = prods; if(q) rows = rows.filter(p => (p.part_number+' '+p.description).toLowerCase().includes(q));
+  const list = rows.slice((page-1)*PER, page*PER);
+  return `<div class="panel"><div class="ph"><div><h3>Products</h3><div class="sub">All parts with current stock</div></div>
+  <div class="tools"><input id="sq" placeholder="Search part number or description..." value="${esc(q)}" oninput="setQ(this.value)">${isAdmin()?`<button class="btn" onclick="prodForm()">${ic('plus',16)}Add Product</button>`:''}</div></div>
+  <div class="tw"><table><tr><th>Sr. No.</th><th>Part Number</th><th>Description</th><th>Balance</th><th>Min Stock</th><th>Status</th>${isAdmin()?'<th></th>':''}</tr>
+  ${list.map((p,i)=>`<tr><td>${(page-1)*PER+i+1}</td><td>${esc(p.part_number)}</td><td>${esc(p.description)}</td><td><b>${p.balance}</b></td><td>${p.min_stock}</td><td><span class="badge ${p.balance<=p.min_stock?'b-low':'b-ok'}">${p.balance<=p.min_stock?'Low':'In Stock'}</span></td>${isAdmin()?`<td><button class="btn ghost sm" onclick="prodForm(${p.id})">Edit</button> <button class="btn red sm" onclick="delProd(${p.id})">Delete</button></td>`:''}</tr>`).join('')}</table>
+  ${rows.length?'':'<div class="empty">No products yet.</div>'}</div>${pager(rows.length)}</div>`;
+}
+function prodForm(id){
+  const p = prods.find(x=>x.id===id) || {part_number:'',description:'',min_stock:10};
+  modal(`<h3>${id?'Edit':'Add'} Product</h3>
+   <label>Part Number</label><input id="f_pn" value="${esc(p.part_number)}">
+   <label>Description</label><input id="f_ds" value="${esc(p.description)}">
+   <label>Low stock alert (minimum quantity)</label><input id="f_m" type="number" min="0" value="${p.min_stock}">
+   <div class="err" id="ferr"></div>
+   <div class="row"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveProd(${id||0})">Save</button></div>`);
+}
+async function saveProd(id){
+  const d = $('#f_ds').value.trim();
+  const row = {part_number:$('#f_pn').value.trim(), description:d, name:d, min_stock:parseInt($('#f_m').value,10)||0};
+  if(!row.part_number){ $('#ferr').textContent='Please enter the part number.'; return; }
+  const {error} = id ? await db.from('products').update(row).eq('id',id) : await db.from('products').insert(row);
+  if(error){ $('#ferr').textContent = error.code==='23505' ? 'This part number already exists.' : error.message; return; }
+  closeModal(); await loadAll(); render();
+}
+async function delProd(id){
+  if(!confirm('Delete this product?')) return;
+  const {error} = await db.from('products').delete().eq('id',id);
+  if(error){ toast('This product has stock entries and cannot be deleted.'); return; }
+  await loadAll(); render();
+}
+
+/* Reports */
+let rf = {from:'', to:'', type:''};
+function reportRows(){ return tx.filter(t => (!rf.type||t.type===rf.type) && (!rf.from||t.tx_date>=rf.from) && (!rf.to||t.tx_date<=rf.to)); }
+function vReports(){
+  const rows = reportRows(), sIn = rows.filter(t=>t.type==='in').reduce((s,t)=>s+t.qty,0), sOut = rows.filter(t=>t.type==='out').reduce((s,t)=>s+t.qty,0);
+  return `<div class="panel"><div class="ph"><div><h3>Reports</h3><div class="sub">Filter by date and type</div></div><button class="btn ghost" onclick="exportRows(reportRows(),'report')">Export Excel</button></div>
+  <div class="filters"><div><label>From</label><input type="date" value="${rf.from}" onchange="rf.from=this.value;page=1;render()"></div><div><label>To</label><input type="date" value="${rf.to}" onchange="rf.to=this.value;page=1;render()"></div>
+  <div><label>Type</label><select onchange="rf.type=this.value;page=1;render()"><option value="">All</option><option value="in" ${rf.type==='in'?'selected':''}>Stock In</option><option value="out" ${rf.type==='out'?'selected':''}>Stock Out</option></select></div></div>
+  <div class="filters"><span class="badge b-in">Total In: ${sIn}</span><span class="badge b-out">Total Out: ${sOut}</span><span class="badge b-low">${rows.length} entries</span></div>
+  <div class="tw"><table><tr><th>Date</th><th>Type</th><th>Part Number</th><th>Description</th><th>Quantity</th><th>Checked By</th></tr>
+  ${rows.slice((page-1)*PER,page*PER).map(t=>`<tr><td>${fmtDate(t.tx_date)}</td><td><span class="badge b-${t.type}">${t.type==='in'?'In':'Out'}</span></td><td>${esc(t.products?.part_number)}</td><td>${esc(t.products?.description)}</td><td>${t.qty}</td><td>${esc(t.done_by_name)}</td></tr>`).join('')}</table>
+  ${rows.length?'':'<div class="empty">No entries found.</div>'}</div>${pager(rows.length)}</div>`;
+}
+
+/* Users (admin) */
+function vUsers(){
+  return `<div class="panel"><div class="ph"><div><h3>Users</h3><div class="sub">Add staff with a name, username and password.</div></div><button class="btn" onclick="addUserForm()">${ic('plus',16)}Add Staff</button></div>
+  <div class="tw"><table><tr><th>Name</th><th>Designation</th><th>Role</th><th>Status</th><th></th></tr>
+  ${users.map(u=>`<tr><td>${esc(u.full_name)}</td><td>${esc(u.designation)}</td><td><span class="badge ${u.role==='admin'?'b-out':'b-in'}">${u.role==='admin'?'Admin':'Staff'}</span></td><td>${u.active?'Active':'Disabled'}</td><td><button class="btn ghost sm" onclick="userForm('${u.id}')">Edit</button></td></tr>`).join('')}</table></div></div>`;
+}
+function addUserForm(){
+  modal(`<h3>Add Staff</h3><label>Full Name</label><input id="f_n">
+  <label>Designation</label><input id="f_ds" placeholder="e.g. Store Keeper">
+  <label>Username (used to sign in)</label><input id="f_em" autocomplete="off" autocapitalize="none">
+  <label>Password (minimum 6 characters)</label><input id="f_pw" type="text" autocomplete="off">
+  <label>Role</label><select id="f_ro"><option value="staff">Staff (stock in/out and view only)</option><option value="admin">Admin (full access)</option></select>
+  <div class="err" id="ferr"></div><div class="row"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" onclick="addUser()">Add</button></div>`);
+}
+async function addUser(){
+  const name=$('#f_n').value.trim(), uname=$('#f_em').value.trim(), pw=$('#f_pw').value;
+  if(!name||!uname||pw.length<6){ $('#ferr').textContent='Please enter a name, a username and a password of at least 6 characters.'; return; }
+  if(/\s/.test(uname)){ $('#ferr').textContent='The username cannot contain spaces.'; return; }
+  const tmp = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+  const {data,error} = await tmp.auth.signUp({email:toEmail(uname), password:pw, options:{data:{full_name:name}}});
+  if(error){ $('#ferr').textContent=error.message; return; }
+  if(!data.user || (data.user.identities && !data.user.identities.length)){ $('#ferr').textContent='This username is already taken.'; return; }
+  const {error:e2} = await db.from('profiles').update({full_name:name, designation:$('#f_ds').value.trim(), role:$('#f_ro').value, active:true}).eq('id',data.user.id);
+  if(e2){ $('#ferr').textContent=e2.message; return; }
+  closeModal(); toast('Staff added'); await loadAll(); render();
+}
+function userForm(id){
+  const u = users.find(x=>x.id===id);
+  modal(`<h3>Edit User</h3><label>Full Name</label><input id="f_n" value="${esc(u.full_name)}">
+  <label>Designation</label><input id="f_ds" value="${esc(u.designation)}">
+  <label>Role</label><select id="f_ro"><option value="staff" ${u.role==='staff'?'selected':''}>Staff (stock in/out and view only)</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin (full access)</option></select>
+  <label>Status</label><select id="f_ac"><option value="true" ${u.active?'selected':''}>Active</option><option value="false" ${!u.active?'selected':''}>Disabled (cannot sign in)</option></select>
+  <div class="err" id="ferr"></div><div class="row"><button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveUser('${id}')">Save</button></div>`);
+}
+async function saveUser(id){
+  if(id===me.id && ($('#f_ro').value!=='admin' || $('#f_ac').value!=='true')){ $('#ferr').textContent='You cannot remove your own admin role or disable your own account.'; return; }
+  const {error} = await db.from('profiles').update({full_name:$('#f_n').value.trim(), designation:$('#f_ds').value.trim(), role:$('#f_ro').value, active:$('#f_ac').value==='true'}).eq('id',id);
+  if(error){ $('#ferr').textContent=error.message; return; }
+  closeModal(); await loadAll(); render();
+}
+
+/* Settings */
+function vSettings(){
+  return `<div class="panel"><div class="ph"><h3>Settings</h3></div><div style="padding:0 16px 20px;max-width:380px">
+  <label>New Password (minimum 6 characters)</label><input id="np" type="password" autocomplete="new-password"><div class="err" id="ferr"></div>
+  <button class="btn" onclick="changePw()">Change Password</button></div></div>`;
+}
+async function changePw(){
+  const v = $('#np').value; if(v.length<6){ $('#ferr').textContent='The password must be at least 6 characters.'; return; }
+  const {error} = await db.auth.updateUser({password:v});
+  if(error){ $('#ferr').textContent=error.message; return; }
+  $('#np').value=''; toast('Password changed');
+}
+
+/* Export (CSV, opens in Excel) */
+function exportTx(type){ exportRows(tx.filter(t=>t.type===type), type==='in'?'stock-in':'stock-out'); }
+function exportRows(rows,name){
+  const head = ['Date','Type','Part Number','Description','Quantity','Checked By'];
+  const c = v => '"'+String(v??'').replace(/"/g,'""')+'"';
+  const lines = [head.map(c).join(',')].concat(rows.map(t=>[fmtDate(t.tx_date),t.type==='in'?'Stock In':'Stock Out',t.products?.part_number,t.products?.description,t.qty,t.done_by_name].map(c).join(',')));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'}));
+  a.download = `${name}-${today()}.csv`; a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* Modal */
+function modal(html,w){ closeModal(); const d=document.createElement('div'); d.className='modal'; d.id='modal'; d.innerHTML=`<div class="mbox" ${w?`style="max-width:${w}px"`:''}>${html}</div>`; document.body.appendChild(d); }
+function closeModal(){ const m=$('#modal'); if(m) m.remove(); }
+
+$('#pw').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+start();
+</script>
+</body>
+</html>
